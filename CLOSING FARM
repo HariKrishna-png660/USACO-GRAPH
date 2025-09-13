@@ -1,0 +1,144 @@
+// BFS SOLUTION ......
+import java.util.*;
+public class closingfarm {
+    public static void dfs(int src, ArrayList<Integer>[] graph, boolean[] vis, boolean[] closed) {
+        vis[src] = true;
+        for (int nbr : graph[src]) {
+            if (!vis[nbr] && !closed[nbr]) {
+                dfs(nbr, graph, vis, closed);
+            }
+        }
+    }
+    public static boolean isConnected(ArrayList<Integer>[] graph, boolean[] closed) {
+        boolean[] vis = new boolean[graph.length];
+        int components = 0;
+
+        for (int i = 0; i < graph.length; i++) {
+            if (!vis[i] && !closed[i]) {
+                dfs(i, graph, vis, closed);
+                components++;
+            }
+        }
+
+       
+        return components <= 1;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        ArrayList<Integer>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();
+
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt() - 1;
+            int v = sc.nextInt() - 1;
+            graph[u].add(v);
+            graph[v].add(u);
+        }
+
+        int[] remove = new int[n];
+        for (int i = 0; i < n; i++) remove[i] = sc.nextInt() - 1;
+
+        boolean[] closed = new boolean[n];
+
+        if (isConnected(graph, closed)) {
+            System.out.println("YES");
+        } 
+        else  {
+            System.out.println("NO");
+        }
+
+        for (int i = 0; i < n; i++) {
+            closed[remove[i]] = true;  
+            if (isConnected(graph, closed)) System.out.println("YES");
+            else System.out.println("NO");
+        }
+    }
+}
+
+// DSU SOLUTION ......
+import java.util.*;
+
+public class closingfarm1 {
+    static class DSU {
+        int[] parent, size;
+
+        DSU(int n) {
+            parent = new int[n];
+            size = new int[n];
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        int find(int x) {
+            if (parent[x] != x) parent[x] = find(parent[x]);
+            return parent[x];
+        }
+
+        void union(int a, int b) {
+            a = find(a);
+            b = find(b);
+            if (a == b) return;
+            if (size[a] < size[b]) {
+                int temp = a;
+                a = b;
+                b = temp;
+            }
+            parent[b] = a;
+            size[a] += size[b];
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        ArrayList<Integer>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();
+
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt() - 1;
+            int v = sc.nextInt() - 1;
+            graph[u].add(v);
+            graph[v].add(u);
+        }
+
+        int[] remove = new int[n];
+        for (int i = 0; i < n; i++) remove[i] = sc.nextInt() - 1;
+
+        DSU dsu = new DSU(n);
+        boolean[] open = new boolean[n];
+        boolean[] ans = new boolean[n];
+
+        int count = 0;  
+        for (int i = n - 1; i >= 0; i--) {
+            int barn = remove[i];
+            open[barn] = true;
+            count++;
+
+           
+            for (int nbr : graph[barn]) {
+                if (open[nbr]) {
+                    if (dsu.find(barn) != dsu.find(nbr)) {
+                        dsu.union(barn, nbr);
+                        count--; 
+                    }
+                }
+            }
+
+            
+            ans[i] = (count == 1);
+        }
+
+        for (boolean res : ans) {
+            System.out.println(res ? "YES" : "NO");
+        }
+    }
+}
+
