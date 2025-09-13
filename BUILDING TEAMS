@@ -1,0 +1,65 @@
+// BFS SOLUTION .......
+import java.io.*;
+import java.util.*;
+
+public class buildingTeams {
+    public static boolean isBipartite(ArrayList<Integer>[] graph, int vtx, int[] vis) {
+        LinkedList<Integer> queue = new LinkedList<>();
+        queue.addLast(vtx);
+        vis[vtx] = 0; 
+
+        while (!queue.isEmpty()) {
+            int front = queue.removeFirst();
+            int color = vis[front];
+
+            for (int nbr : graph[front]) {
+                if (vis[nbr] == -1) {
+                    vis[nbr] = 1 - color; 
+                    queue.addLast(nbr);
+                } else if (vis[nbr] == color) {
+                    return false; 
+                }
+            }
+        }
+        return true;
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        ArrayList<Integer>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (int i = 0; i < m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken()) - 1;
+            int v = Integer.parseInt(st.nextToken()) - 1;
+            graph[u].add(v);
+            graph[v].add(u);
+        }
+
+        int[] vis = new int[n];
+        Arrays.fill(vis, -1);
+
+        for (int i = 0; i < n; i++) {
+            if (vis[i] == -1) {
+                if (!isBipartite(graph, i, vis)) {
+                    System.out.println("IMPOSSIBLE");
+                    return; 
+                }
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            sb.append(vis[i] + 1).append(" ");
+        }
+        System.out.println(sb.toString().trim());
+    }
+}
